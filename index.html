@@ -53,7 +53,9 @@
                 });
             });
             // looping over the grouped data and create a link for each book.
-            Object.keys(organizedHighlights).forEach(bookName => {
+            Object.keys(organizedHighlights)
+                .sort()
+                .forEach(bookName => {
                 const link = document.createElement('div');
                 link.classList.add('book');
                 link.innerHTML = bookName;
