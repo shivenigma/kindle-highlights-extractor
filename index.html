@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=yes, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Kindle highlights extractor</title>
+</head>
+<body>
+<div class="container">
+    <label for="clippings">Upload your clipping.txt file</label>
+    <input type="file" name="clippings" id="clippings">
+    <div id="result"></div>
+</div>
+</body>
+<script type="text/javascript">
+    const fileInput = document.getElementById('clippings');
+    fileInput.addEventListener('change', onUpload, false);
+    const result = document.getElementById('result');
+    function onUpload() {
+        console.log('test');
+        console.log(this.files);
+        const file = this.files[0];
+        if (file.type !== 'text/plain') {
+            console.log('Unsupported file type, upload your kindle my clippings file');
+            return;
+        }
+        const reader = new FileReader();
+        reader.addEventListener('load', function (event) {
+            result.innerText = event.target.result;
+            console.log(event);
+        });
+        reader.onerror = function(event) {
+            console.error(event);
+        }
+        reader.addEventListener('progress', (event) => {
+            if (event.loaded && event.total) {
+                const percent = (event.loaded / event.total) * 100;
+                console.log(`Progress: ${Math.round(percent)}`);
+            }
+        });
+        reader.readAsText(file);
+    }
+</script>
+</html>
