@@ -15,11 +15,10 @@ No data is transmitted from your system, the code handles everything on the clie
 If you plug your Kindle into your computer it will go into USB mode. From there you can view the files on your Kindle from your file explorer. Navigate to /Documents/My Clippings.txt, upload that file into the app.
 
 ## Roadmap
-- Refactor the code, modularize and bring it to a decent state.
 - Ability to let the user choose whether they need location of the highlight or the date.
 - Ability to select/reject individual highlights from a specific book
-- Drag and drop upload and make the UI looking good?
-- Using Webworkers to do the heavy-lifting off the main thread.
+- Drag and drop upload and make the UI looking good
+- Make the worker.js to use WebAssembly for the heavy-lifting to boost performance on larger files.
 
 ## Contribution guidelines
 - I love if someone cared enough to even think about contributing to this. This can be a good first OS contribution as this is a very simple repo.

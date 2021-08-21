@@ -23,75 +23,64 @@
 </body>
 <script type="text/javascript">
     const fileInput = document.getElementById('clippings');
-    fileInput.addEventListener('change', onUpload, false);
     const result = document.getElementById('result');
-    const organizedHighlights = {};
+    const worker = new Worker('worker.js');
+    fileInput.addEventListener('change', onUpload, false);
     function onUpload() {
         const file = this.files[0];
         if (file.type !== 'text/plain') {
             console.log('Unsupported file type, upload your kindle my clippings file', file);
             return;
         }
-        const reader = new FileReader();
-        reader.addEventListener('load', function (event) {
-            const heading = document.createElement('h3');
-            heading.innerText = 'Click on any book link to download its highlights';
-            result.appendChild(heading);
-
-            // Amazon is kind enough that they gave the below handle, each highlight is split by '==========
-            const highlights = event.target.result.split(/\=\=\=\=\=\=\=\=\=\=\r?\n/);
-            highlights.forEach(highlight => {
-                // Kindle should be using unix file endings? but not sure, so used regex.
-               const processedHighlight = highlight.split(/\r?\n/);
-               // The processedHighlight array will have the book title, location of highlight, and actual highlight respectively as elements. Need to watch out for the empty lines. in the middle and in the end on line 2 and 4.
-                if (!organizedHighlights[processedHighlight[0]]) {
-                    organizedHighlights[processedHighlight[0]] = [];
-                }
-                organizedHighlights[processedHighlight[0]].push({
-                    location: processedHighlight[1],
-                    highlight: processedHighlight[3]
-                });
-            });
-            // looping over the grouped data and create a link for each book.
-            Object.keys(organizedHighlights)
-                .sort()
-                .forEach(bookName => {
-                const link = document.createElement('div');
-                link.classList.add('book');
-                link.innerHTML = bookName;
-                link.href = null;
-                link.addEventListener('click', bookLinkClick, false);
-                result.appendChild(link);
-            });
-        });
-        reader.onerror = function(event) {
-            console.error(event);
-            result.innerText = 'There is an error reading the file';
-        }
-        reader.addEventListener('progress', (event) => {
-            if (event.loaded && event.total) {
-                const percent = (event.loaded / event.total) * 100;
-                console.log(`Progress: ${Math.round(percent)}`);
-            }
-        });
-        reader.readAsText(file);
+        const data = {
+            type: 'upload',
+            data: file
+        };
+        worker.postMessage(data);
+        worker.onmessage = handleWorkerMessages;
     }
-    function bookLinkClick(event) {
-        const book = organizedHighlights[event.target.innerHTML];
-        let text = book.reduce((acc, highlight) => {
-            acc += '\r\n' + highlight.highlight + '\r\n' +  highlight.location + '\r\n\r\n';
-            return acc;
-        }, event.target.innerHTML);
-        const data = new Blob([text], {type: 'text/plain'});
+
+    function  handleWorkerMessages(event) {
+        switch (event.data.type) {
+            case 'book-list':{
+                showBookList(event.data.data);
+                break;
+            }
+            case 'book-data': {
+                downloadHighlights(event.data.data);
+                break;
+            }
+        }
+    }
+    function downloadHighlights(book) {
         // Should I be using the fileSystem API? This works without permissions. I think less permissions are better.
         let textFile = null;
         if (textFile !== null) {
             window.URL.revokeObjectURL(textFile);
         }
         const tempLink = document.createElement('a');
-        tempLink.href = window.URL.createObjectURL(data);
-        tempLink.download = event.target.innerHTML + '.txt';
+        tempLink.href = window.URL.createObjectURL(book.highlights);
+        tempLink.download = book.title + '.txt';
         tempLink.click();
+    }
+    function showBookList(data) {
+        const heading = document.createElement('h3');
+        heading.innerText = 'Click on any book link to download its highlights';
+        result.appendChild(heading);
+        data.forEach(bookName => {
+            const link = document.createElement('div');
+            link.classList.add('book');
+            link.innerHTML = bookName;
+            link.href = null;
+            link.addEventListener('click', bookLinkClick, false);
+            result.appendChild(link);
+        });
+    }
+    function bookLinkClick(event) {
+        worker.postMessage({
+            type: 'linkClick',
+            data: event.target.innerHTML
+        })
     }
 </script>
 </html>
