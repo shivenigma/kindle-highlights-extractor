@@ -7,27 +7,55 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Kindle highlights extractor</title>
     <style>
+        .container {
+            margin: 10px;
+        }
         .book {
             color: blue;
             text-decoration: underline;
             cursor: pointer;
         }
+        #clippings {
+            display: none;
+        }
+        .upload-area {
+            display: block;
+            padding: 80px;
+            border: dashed 5px gray;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
-<div class="container">
-    <label for="clippings">Upload your clipping.txt file</label>
-    <input type="file" name="clippings" id="clippings">
-    <div id="result"></div>
+<div class="container" id="container">
+    <label for="clippings" class="upload-area" id="upload-area">
+        Click to upload or Drag and Drop your clipping.txt file
+        <input type="file" name="clippings" id="clippings">
+    </label>
 </div>
 </body>
 <script type="text/javascript">
+    const result = document.getElementById('container');
+
     const fileInput = document.getElementById('clippings');
-    const result = document.getElementById('result');
-    const worker = new Worker('worker.js');
     fileInput.addEventListener('change', onUpload, false);
-    function onUpload() {
-        const file = this.files[0];
+
+    const upload = document.getElementById('upload-area');
+    upload.addEventListener('drop', onUpload);
+    upload.addEventListener('dragover', onDragOver);
+
+    const worker = new Worker('worker.js');
+
+    function onDragOver(event) {
+        event.preventDefault();
+    }
+
+    function onUpload(event) {
+        // preventing the default action for drop event.
+        event.preventDefault();
+        // file will be available either in this.files for click and upload and inside data transfer for drop.
+        const file = event?.dataTransfer?.files[0] || this?.files[0];
         if (file.type !== 'text/plain') {
             console.log('Unsupported file type, upload your kindle my clippings file', file);
             return;
@@ -52,6 +80,7 @@
             }
         }
     }
+
     function downloadHighlights(book) {
         // Should I be using the fileSystem API? This works without permissions. I think less permissions are better.
         let textFile = null;
@@ -63,12 +92,13 @@
         tempLink.download = book.title + '.txt';
         tempLink.click();
     }
+
     function showBookList(data) {
         const heading = document.createElement('h3');
         heading.innerText = 'Click on any book link to download its highlights';
-        result.appendChild(heading);
+        result.replaceChild(heading, upload);
         data.forEach(bookName => {
-            const link = document.createElement('div');
+            const link= document.createElement('div');
             link.classList.add('book');
             link.innerHTML = bookName;
             link.href = null;
@@ -76,6 +106,7 @@
             result.appendChild(link);
         });
     }
+
     function bookLinkClick(event) {
         worker.postMessage({
             type: 'linkClick',
