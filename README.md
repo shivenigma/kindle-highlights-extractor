@@ -4,7 +4,7 @@
  ## Motivation
  Amazon's kindle is excellent, it's note taking system and export are great. But only limitation is, they will only let you get highlights for the books you bought from amazon.
  
- If you get books from free sites/other providers, if you read PDFs, research papers, amazon will not let you get those highlights out of kindle in their application. I've tried multiple paid applications and they works, but paying for reading a text file and sending you back the result in organised way should not be a recurring monthly bill IMO. I hacked this together within an hour, so highlight and export to your heart's content.
+If you get books from free sites/other providers, if you read PDFs, research papers, amazon will not let you get those highlights out of kindle in their web application. I've tried multiple paid applications and they work. But reading a text file and sending you back the result in organised way should not be a recurring monthly bill IMO. I hacked this together within an hour, so highlight and export to your heart's content.
 
 ## How to use?
 You can either run this by cloning this repo to your local machine and run this in a browser or you can use this link https://kindle-highlights-extractor.vercel.app
