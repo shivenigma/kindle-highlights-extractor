@@ -26,6 +26,14 @@
         }
 
     </style>
+    <!--<script type="module">
+        import init, {greet} from "./pkg/wasm_game_of_life.js";
+        async function run() {
+            await init();
+            greet("Welcome, Vignesh. This alert is from Web Assembly");
+        }
+        run();
+    </script>-->
 </head>
 <body>
 <div class="container" id="container">
@@ -34,10 +42,28 @@
         <input type="file" name="clippings" id="clippings">
     </label>
 </div>
+<div id="instructions">
+    <h3>Kindle highlights extractor</h3>
+    A tool to extract your highlights from side-loaded books and docs on your Kindle.
+
+    <h3>Motivation</h3>
+    <p>Amazon's Kindle is excellent. It's note-taking system and export are great. But only limitation is, they will only let you get highlights for the books you bought from Amazon.</p>
+
+    <p>If you get books from free sites/other providers, if you read PDFs, research papers, Amazon will not let you get those highlights out of kindle in their application.</p>
+
+    <p>There is also a limit to how much you can export from books you bought from them. This is ridiculous and stuff like that is what makes owning an ebook to be not as same as the physical copy. I hacked this together within an hour, so highlight and export to your heart's content.</p>
+
+    <h3>How to use?</h3>
+    Upload you my-clippings.txt file from the Kindle in the upload area and your file will be parsed and you can download highlights of each book as a text file. No data is transmitted from your system, the code handles everything on the client side.
+
+    <h3>How to get my-clippings.txt file</h3>
+    If you plug your Kindle into your computer it will go into USB mode. From there you can view the files on your Kindle from your file explorer. Navigate to /Documents/My Clippings.txt, upload that file into the app.
+    <p>Built by <a href="https://vikky.dev">Vignesh</a></p>
+</div>
 </body>
 <script type="text/javascript">
     const result = document.getElementById('container');
-
+    const instructions = document.getElementById('instructions');
     const fileInput = document.getElementById('clippings');
     fileInput.addEventListener('change', onUpload, false);
 
@@ -97,6 +123,7 @@
         const heading = document.createElement('h3');
         heading.innerText = 'Click on any book link to download its highlights';
         result.replaceChild(heading, upload);
+        instructions.parentElement.removeChild(instructions);
         data.forEach(bookName => {
             const link= document.createElement('div');
             link.classList.add('book');
